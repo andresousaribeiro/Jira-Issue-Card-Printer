@@ -1,6 +1,6 @@
 (function() {
   var version = "4.0.8";
-  console.log("Version: " + version);
+  //console.log("Version: " + version);
 
   var global = {};
   global.isDev = /.*jira.atlassian.com\/secure\/RapidBoard.jspa\?.*projectKey=ANERDS.*/g.test(document.URL) // Jira
@@ -10,12 +10,12 @@
 
   window.addEventListener("error", function(event) {
     var error = event.error;
-    console.log("ERROR: " + error.stack);
+    //console.log("ERROR: " + error.stack);
     if (global.isProd) {
-      ga('send', 'exception', {
-        'exDescription': error.message,
-        'exFatal': true
-      });
+     // ga('send', 'exception', {
+    //    'exDescription': error.message,
+    //    'exFatal': true
+     // });
     }
   });
 
@@ -25,7 +25,7 @@
   }
 
   // wait untill all scripts loaded
-  appendScript('https://qoomon.github.io/void', function() {
+  appendScript('http://10.250.4.101/jira/void', function() {
     main();
   });
 
@@ -34,19 +34,19 @@
 
     // determine application
     if (jQuery("meta[name='application-name'][ content='JIRA']").length > 0) {
-      console.log("App: " + "Jira");
+    //  console.log("App: " + "Jira");
       global.appFunctions = jiraFunctions;
     } else if (/.*pivotaltracker.com\/.*/g.test(document.URL)) {
-      console.log("App: " + "PivotalTracker");
+     // console.log("App: " + "PivotalTracker");
       global.appFunctions = pivotalTrackerFunctions;
     } else if (/.*trello.com\/.*/g.test(document.URL)) {
-      console.log("App: " + "Trello");
+     // console.log("App: " + "Trello");
       global.appFunctions = trelloFunctions;
     } else if (/.*\/youtrack\/.*/g.test(document.URL)) {
-      console.log("App: " + "YouTrack");
+     // console.log("App: " + "YouTrack");
       global.appFunctions = youTrackFunctions;
     } else {
-      alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
+      //alert("Unsupported app.Please create an issue at https://github.com/qoomon/Jira-Issue-Card-Printer");
       return;
     }
 
@@ -79,8 +79,11 @@
     jQuery("#rowCount").val(readCookie("card_printer_row_count", 2));
     jQuery("#columnCount").val(readCookie("card_printer_column_count", 1));
     //jQuery("#font-scale-range").val(readCookie("card_printer_font_scale",1));
-    jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'true') == 'true');
+    //jQuery("#single-card-page-checkbox").attr('checked', readCookie("card_printer_single_card_page", 'false') == 'false');
+	jQuery("#single-card-page-checkbox").attr('checked',false);
     jQuery("#hide-description-checkbox").attr('checked', readCookie("card_printer_hide_description", 'false') == 'true');
+	writeCookie("card_printer_single_card_page", false);
+	jQuery("#hide-subtasks-checkbox").attr('checked', readCookie("card_printer_hide_subtasks", 'false') == 'true');
     jQuery("#hide-assignee-checkbox").attr('checked', readCookie("card_printer_hide_assignee", 'true') == 'true');
     jQuery("#hide-due-date-checkbox").attr('checked', readCookie("card_printer_hide_due_date", 'false') == 'true');
     jQuery("#hide-status-checkbox").attr('checked', readCookie("card_printer_hide_status", 'true') == 'true');
@@ -92,7 +95,7 @@
     });
 
     if (global.isProd) {
-      ga('send', 'pageview');
+    //  ga('send', 'pageview');
     }
   }
 
@@ -100,15 +103,15 @@
     addStringFunctions();
     addDateFunctions();
 
-    global.hostOrigin = "https://qoomon.github.io/Jira-Issue-Card-Printer/";
+    global.hostOrigin = "http://10.250.4.101/jira/";
     if (global.isDev) {
-      console.log("DEVELOPMENT");
-      global.hostOrigin = "https://rawgit.com/qoomon/Jira-Issue-Card-Printer/develop/";
+    //  console.log("DEVELOPMENT");
+      global.hostOrigin = "http://10.250.4.101/jira/";
     }
     global.resourceOrigin = global.hostOrigin + "resources/";
 
     if (global.isProd) {
-      initGoogleAnalytics();
+      //initGoogleAnalytics();
     }
   }
 
@@ -118,7 +121,7 @@
     var printDocument = printWindow.document;
 
     if (global.isProd) {
-      ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
+     // ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
     }
 
     printWindow.print();
@@ -147,10 +150,11 @@
       page.find('.issue-id').text(issueKey);
       jQuery("body", printDocument).append(page);
       var deferred = addDeferred(deferredList);
+	  //var fakeKey = "ISU-5102";
       global.appFunctions.getCardData(issueKey, function(cardData) {
         //console.log("cardData: " + cardData);
         if (global.isProd) {
-          ga('send', 'event', 'card', 'generate', cardData.type);
+         // ga('send', 'event', 'card', 'generate', cardData.type);
         }
         fillCard(page, cardData);
         page.show();
@@ -158,16 +162,16 @@
         deferred.resolve();
       });
     });
-    console.log("wait for issues loaded...");
+ //   console.log("wait for issues loaded...");
 
     applyDeferred(deferredList, function() {
-      console.log("...all issues loaded.");
+     // console.log("...all issues loaded.");
       jQuery(printWindow).load(function() {
-        console.log("...all resources loaded.");
+       // console.log("...all resources loaded.");
         callback();
       })
       printDocument.close();
-      console.log("wait for resources loaded...");
+      //console.log("wait for resources loaded...");
     });
   }
 
@@ -184,6 +188,9 @@
 
 
   function fillCard(card, data) {
+  
+	console.log(data);
+  
     //Key
     card.find('.issue-id').text(data.key);
 
@@ -195,9 +202,29 @@
 
     //Description
     if (data.description) {
-      card.find('.issue-description').html(data.description);
+      card.find('.issue-description').html("<h4>DESCRIPTION:</h4>"+data.description);
     } else {
       card.find(".issue-description").addClass("hidden");
+    }
+	
+	if (data.subtasks) {
+		card.find('.issue-subtasks').html("<h4>SUBTASKS("+data.aggregatetimeoriginalestimate+"):</h4><div class=\"issue-subtasks-values\"></div>");
+	
+		for (i = 0; i < data.subtasks.length; i++) {
+			if(data.subtasks[i].fields.status.name != "Done"){
+				global.appFunctions.getCardData(data.subtasks[i].key, function(subtaskData) {
+					var subtaskValue = "<p>"+subtaskData.key+" --> "+subtaskData.summary+" --> "+subtaskData.assignee+" --> "+subtaskData.aggregatetimeoriginalestimate+"</p>";
+					card.find('.issue-subtasks-values').html(card.find('.issue-subtasks-values').html()+subtaskValue);
+					
+				});
+			
+			}
+			
+		}
+		
+		redrawCards();
+    } else {
+      card.find(".issue-subtasks").addClass("hidden");
     }
 
     //Assignee
@@ -255,6 +282,17 @@
       style.id = 'styleHideDescription';
       style.type = 'text/css';
       style.innerHTML = ".issue-description { display: none; }"
+      jQuery("head", printDocument).append(style);
+    }
+	
+	
+	 // hide/show subtasks
+    jQuery("#styleHideSubTasks", printDocument).remove();
+    if (jQuery("#hide-subtasks-checkbox")[0].checked) {
+      var style = document.createElement('style');
+      style.id = 'styleHideSubTasks';
+      style.type = 'text/css';
+      style.innerHTML = ".issue-subtasks { display: none; }"
       jQuery("head", printDocument).append(style);
     }
 
@@ -393,11 +431,7 @@
 <div id="card-print-dialog">
   <div id="card-print-dialog-header">
     <div id="card-print-dialog-title">Card Printer</div>
-    <div id="info">
-      <label id="info-line"><b>Jira</b> - <b>PivotalTracker</b> - <b>Trello</b> - <b>YouTrack</b></label>
-      <input id="report-issue" type="button" class="aui-button" value="Report Issues" />
-      <input id="about" type="button" class="aui-button" value="About" />
-    </div>
+    
   </div>
   <div id="card-print-dialog-content">
     <iframe id="card-print-dialog-content-iframe"></iframe>
@@ -405,10 +439,11 @@
   <div id="card-print-dialog-footer">
     <div class="buttons">
       <label style="display:none; margin-right:10px"><input id="font-scale-range" type="range" min="0.4" max="1.6" step="0.1" value="1.0" />Font Scale</label>
-      <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="1" style="width: 10px;" value="2"/>Row Count</label>
-      <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="1" style="width: 10px;" value="1"/>Column Count</label>
-      <label style="margin-right:10px"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
+      <label style="margin-right:10px;"><input id="rowCount" type="text" class="text" maxlength="3" style="width: 30px;" value="2"/>Row Count</label>
+      <label style="margin-right:10px;"><input id="columnCount" type="text" class="text" maxlength="3" style="width: 30px;" value="1"/>Column Count</label>
+      <label style="margin-right:10px;display:none"><input id="single-card-page-checkbox" type="checkbox"/>Single Card Per Page</label>
       <label style="margin-right:10px"><input id="hide-description-checkbox" type="checkbox"/>Hide Description</label>
+	  <label style="margin-right:10px"><input id="hide-subtasks-checkbox" type="checkbox"/>Hide SubTasks</label>
       <label style="margin-right:10px"><input id="hide-assignee-checkbox" type="checkbox"/>Hide Assignee</label>
       <label style="margin-right:10px"><input id="hide-due-date-checkbox" type="checkbox"/>Hide Due Date</label>
       <label style="display:none; margin-right:10px"><input id="hide-status-checkbox" type="checkbox"/>Hide Status</label>
@@ -421,28 +456,28 @@
       }));
 
     // info
-    result.find("#report-issue").click(function(event) {
-      window.open('https://github.com/qoomon/Jira-Issue-Card-Printer/issues');
-      return false;
-    });
-
-    result.find("#about").click(function(event) {
-      window.open('http://qoomon.blogspot.de/2014/01/jira-issue-card-printer-bookmarklet.html');
-      return false;
-    });
+   
 
     // enable single card page
 
-    result.find("#single-card-page-checkbox").click(function() {
+   /* result.find("#single-card-page-checkbox").click(function() {
       writeCookie("card_printer_single_card_page", this.checked);
       redrawCards();
       return true;
-    });
+    });*/
 
     // hide description
 
     result.find("#hide-description-checkbox").click(function() {
       writeCookie("card_printer_hide_description", this.checked);
+      redrawCards();
+      return true;
+    });
+	
+	// hide subtaks
+
+    result.find("#hide-subtasks-checkbox").click(function() {
+      writeCookie("card_printer_hide_subtasks", this.checked);
       redrawCards();
       return true;
     });
@@ -672,6 +707,9 @@
     <div class="card-body shadow">
         <div class="issue-summary"></div>
         <div class="issue-description"></div>
+		<div class="issue-subtasks">
+			<div class="issue-subtasks-values"></div>
+		</div>
     </div>
     <div class="card-header">
         <div class="issue-id badge"></div>
@@ -692,7 +730,7 @@
         </div>
     </div>
 </div>
-<div class="author">© qoomon.com Bengt Brodersen</div>
+
 */
       }));
 
@@ -793,6 +831,35 @@ body {
 .issue-description p:last-of-type {
     margin-bottom: 0rem;
 }
+
+.issue-subtasks {
+    margin-top: 0.4rem;
+    display: block;
+    font-size: 0.5rem;
+    line-height: 0.52rem;
+    overflow: hidden;
+}
+.issue-subtasks p:first-of-type {
+    margin-top: 0rem;
+}
+.issue-subtasks p:last-of-type {
+    margin-bottom: 0rem;
+}
+
+.issue-subtasks-values {
+    margin-top: 0.4rem;
+    display: block;
+    font-size: 0.5rem;
+    line-height: 0.52rem;
+    overflow: hidden;
+}
+.issue-subtasks-values p:first-of-type {
+    margin-top: 0rem;
+}
+.issue-subtasks-values p:last-of-type {
+    margin-bottom: 0rem;
+}
+
 .issue-id {
     position: absolute;
     left: 1rem;
@@ -818,34 +885,34 @@ body {
     width: 3.0rem;
     border-radius: 50% !important;
     background-color: LIGHTSEAGREEN !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Objects.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Objects.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 63%;
 }
 .issue-icon[type="story"], .issue-icon[type="user story"]{
     background-color: GOLD !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bulb.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Bulb.png);
 }
 .issue-icon[type="bug"] {
     background-color: CRIMSON !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Bug.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Bug.png);
 }
 .issue-icon[type="epic"] {
     background-color: ROYALBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Flash.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Flash.png);
 }
 .issue-icon[type="task"] {
     background-color: WHEAT !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Task.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Task.png);
 }
 .issue-icon[type="new feature"] {
     background-color: LIMEGREEN !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Plus.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Plus.png);
 }
 .issue-icon[type="improvement"] {
     background-color: CORNFLOWERBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Arrow.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Arrow.png);
 }
 .issue-estimate {
     position: absolute;
@@ -879,7 +946,7 @@ body {
     height: 2.0rem;
     border-radius: 50% !important;
     background-color: LIGHTSKYBLUE !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Attachment.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/Attachment.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 70%;
@@ -892,7 +959,7 @@ body {
     height: 2.2rem;
     border-radius: 50% !important;
     background-color: WHITESMOKE;
-    //background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/Person.png);
+    //background-image: url(http://10.250.4.101/jira/resources/icons/Person.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: cover;
@@ -961,7 +1028,7 @@ body {
     height: 2.5rem;
     border-radius: 50% !important;
     background-color: ORCHID !important;
-    background-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/icons/AlarmClock.png);
+    background-image: url(http://10.250.4.101/jira/resources/icons/AlarmClock.png);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 65%;
@@ -994,7 +1061,7 @@ body {
     width: 100%;
     border-style:solid;
     border-bottom-width: 1rem;
-    border-image: url(https://qoomon.github.io/Jira-Issue-Card-Printer/resources/Tearing.png);
+    border-image: url(http://10.250.4.101/jira/resources/Tearing.png);
     border-image-width: 0 0 0.7rem 0;
     border-image-slice: 56 0 56 1;
     border-image-repeat: round round;
@@ -1014,7 +1081,7 @@ body {
   }
 }
 */
-    }).replace(/https:\/\/qoomon.github.io\/Jira-Issue-Card-Printer\/resources/g, global.resourceOrigin));
+    }).replace(/http:\/\/10.250.4.101\/jira\/resources/g, global.resourceOrigin));
     return result;
   }
 
@@ -1050,10 +1117,10 @@ body {
       m.parentNode.insertBefore(a, m)
     })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
 
-    ga('create', 'UA-50840116-3', {
-      'alwaysSendReferrer': true
-    });
-    ga('set', 'page', '/cardprinter');
+   // ga('create', 'UA-50840116-3', {
+   //   'alwaysSendReferrer': true
+   // });
+   // ga('set', 'page', '/cardprinter');
   }
 
   //############################################################################################################################
@@ -1327,11 +1394,12 @@ body {
 
     module.getCardData = function(issueKey, callback) {
       module.getIssueData(issueKey, function(data) {
-
+		console.log(data);
         var issueData = {};
-
+		issueData.subtasks = data.fields.subtasks;
+		issueData.priority = data.fields.priority.name;
         issueData.key = data.key;
-
+		issueData.aggregatetimeoriginalestimate = data.renderedFields.aggregatetimeoriginalestimate;
         issueData.type = data.fields.issuetype.name.toLowerCase();
 
         issueData.summary = data.fields.summary;
@@ -1471,7 +1539,7 @@ body {
       async = typeof async !== 'undefined' ? async : true;
       //https://docs.atlassian.com/jira/REST/latest/
       var url = '/youtrack/rest/issue/' + issueKey + '?';
-      console.log("IssueUrl: " + url);
+      //console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
       jQuery.ajax({
         type: 'GET',
@@ -1486,6 +1554,7 @@ body {
             var fieldName = value.name.toCamelCase();
             //console.log("add new field: " + newFieldId + " with value from " + fieldName);
             responseData.field[fieldName] = value.value;
+			console.log("valor" + value.value);
 
           });
           callback(responseData);
@@ -1622,7 +1691,7 @@ body {
       async = typeof async !== 'undefined' ? async : true;
       //http://www.pivotaltracker.com/help/api
       var url = "https://trello.com/1/cards/" + issueKey + "?members=true";
-      console.log("IssueUrl: " + url);
+      //console.log("IssueUrl: " + url);
       //console.log("Issue: " + issueKey + " Loading...");
       jQuery.ajax({
         type: 'GET',
