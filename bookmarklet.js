@@ -10,13 +10,7 @@
 
   window.addEventListener("error", function(event) {
     var error = event.error;
-    //console.log("ERROR: " + error.stack);
-    if (global.isProd) {
-     // ga('send', 'exception', {
-    //    'exDescription': error.message,
-    //    'exFatal': true
-     // });
-    }
+    
   });
 
   // load jQuery
@@ -94,9 +88,6 @@
       //print();
     });
 
-    if (global.isProd) {
-    //  ga('send', 'pageview');
-    }
   }
 
   function init() {
@@ -110,19 +101,12 @@
     }
     global.resourceOrigin = global.hostOrigin + "resources/";
 
-    if (global.isProd) {
-      //initGoogleAnalytics();
-    }
   }
 
   function print() {
     var printFrame = jQuery("#card-print-dialog-content-iframe");
     var printWindow = printFrame[0].contentWindow;
     var printDocument = printWindow.document;
-
-    if (global.isProd) {
-     // ga('send', 'event', 'button', 'click', 'print', jQuery(".card", printDocument).length);
-    }
 
     printWindow.print();
   }
@@ -150,12 +134,7 @@
       page.find('.issue-id').text(issueKey);
       jQuery("body", printDocument).append(page);
       var deferred = addDeferred(deferredList);
-	  //var fakeKey = "ISU-5102";
       global.appFunctions.getCardData(issueKey, function(cardData) {
-        //console.log("cardData: " + cardData);
-        if (global.isProd) {
-         // ga('send', 'event', 'card', 'generate', cardData.type);
-        }
         fillCard(page, cardData);
         page.show();
         redrawCards();
@@ -1101,26 +1080,6 @@ body {
     script.onload = callback;
 
     head.appendChild(script);
-  }
-
-  function initGoogleAnalytics() {
-    // <GoogleAnalytics>
-    (function(i, s, o, g, r, a, m) {
-      i['GoogleAnalyticsObject'] = r;
-      i[r] = i[r] || function() {
-        (i[r].q = i[r].q || []).push(arguments)
-      }, i[r].l = 1 * new Date();
-      a = s.createElement(o),
-        m = s.getElementsByTagName(o)[0];
-      a.async = 1;
-      a.src = g;
-      m.parentNode.insertBefore(a, m)
-    })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-   // ga('create', 'UA-50840116-3', {
-   //   'alwaysSendReferrer': true
-   // });
-   // ga('set', 'page', '/cardprinter');
   }
 
   //############################################################################################################################
