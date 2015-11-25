@@ -237,11 +237,11 @@
     }
 
     //Epic
-    if (data.epicKey) {
-      card.find(".issue-epic-id").text(data.epicKey);
-      card.find(".issue-epic-name").text(data.epicName);
+    if (data.type != 'sub-task' && data.fixVersions) {
+      //card.find(".issue-epic-id").text(data.epicKey);
+      card.find(".issue-fixVersions-name").text(data.fixVersions[0].name);
     } else {
-      card.find(".issue-epic-box").addClass("hidden");
+      card.find(".issue-fixVersions-box").addClass("hidden");
     }
 
     //QR-Code
@@ -703,9 +703,9 @@
         <div class="issue-qr-code badge"></div>
         <div class="issue-attachment badge"></div>
         <div class="issue-assignee badge"></div>
-        <div class="issue-epic-box badge">
+        <div class="issue-fixVersions-box badge">
             <span class="issue-epic-id"></span>
-            <span class="issue-epic-name"></span>
+            <span class="issue-fixVersions-name"></span>
         </div>
     </div>
 </div>
@@ -949,7 +949,7 @@ body {
     font-size: 1.4rem;
     line-height: 1.9rem;
 }
-.issue-epic-box {
+.issue-fixVersions-box {
     position: absolute;
     right:3.0rem;
     top: 0rem;
@@ -974,7 +974,7 @@ body {
     font-size: 0.5rem;
     font-weight: bold;
 }
-.issue-epic-name {
+.issue-fixVersions-name {
     margin-left: 0.1rem;
     font-size: 0.6rem;
     font-weight: bold;
@@ -1364,6 +1364,10 @@ body {
         issueData.summary = data.fields.summary;
         
         issueData.description = data.renderedFields.description;
+        
+        issueData.fixVersions = data.fields.fixVersions;
+
+
 
         if (data.fields.assignee) {
           issueData.assignee = data.fields.assignee.displayName;
@@ -1418,7 +1422,7 @@ body {
           //console.log("Issue: " + issueKey + " Loaded!");
           // add custom fields with field names
           jQuery.each(responseData.names, function(key, value) {
-            if (key.startsWith("customfield_")) {
+            if (key.startsWith("customfield_") || key.startsWith("fixVersions")) {
               var fieldName = value.toCamelCase();
               //console.log("add new field: " + fieldName + " with value from " + key);
               responseData.fields[fieldName] = responseData.fields[key];
@@ -1554,7 +1558,7 @@ body {
         issueData.summary = data.name;
 
         issueData.description = data.description;
-
+       
         if (data.owned_by && data.owned_by.length > 0) {
           issueData.assignee = data.owner_ids[0].name;
         }
