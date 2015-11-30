@@ -237,7 +237,7 @@
     }
 
     //Epic
-    if (data.type != 'sub-task' && data.fixVersions) {
+    if (data.type != 'sub-task' && data.fixVersions.length != 0) {
       //card.find(".issue-epic-id").text(data.epicKey);
       card.find(".issue-fixVersions-name").text(data.fixVersions[0].name);
     } else {
